@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Erriez Test App
+GenericName=Erriez Test App
+Comment=A test application created by Erriez
+Icon=
+Exec=
+Categories=Utility;
+Keywords=Erriez;Test;
+Terminal=false
+MimeType=application/erriez-test;
