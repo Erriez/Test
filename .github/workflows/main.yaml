@@ -17,6 +17,9 @@ on:
   # Allows to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+  app_name: 'erriez-test'
+
 jobs:
   build:
     strategy:
@@ -68,7 +71,7 @@ jobs:
       - name: Build single executable
         run: |
           pip install pyinstaller
-          pyinstaller --onefile --noconsole --name erriez-test test.py
+          pyinstaller --onefile --noconsole -i images\test.ico --name ${app_name} test.py
 
       - name: Create Windows NSIS installer
         if: runner.os == 'Windows'
