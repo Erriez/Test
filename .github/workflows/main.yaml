@@ -69,6 +69,7 @@ jobs:
           cat data/version.txt
 
       - name: Build single executable
+        shell: bash
         run: |
           pip install pyinstaller
           pyinstaller --onefile --noconsole -i images\test.ico --name ${app_exe} test.py
