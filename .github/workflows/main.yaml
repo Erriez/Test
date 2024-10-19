@@ -18,7 +18,7 @@ on:
   workflow_dispatch:
 
 env:
-  app_exe: 'erriez-test'
+  app_name: 'erriez-test'
 
 jobs:
   build:
@@ -72,7 +72,7 @@ jobs:
         shell: bash
         run: |
           pip install pyinstaller
-          pyinstaller --onefile --noconsole -i images/test.ico --name ${app_exe} test.py
+          pyinstaller --onefile --noconsole -i images/test.ico --name ${{env.app_name}} test.py
 
       - name: Create Windows NSIS installer
         if: runner.os == 'Windows'
@@ -80,7 +80,7 @@ jobs:
         with:
           script-file: "nsis/install.nsi"
           # VERSION must be in x.x.x format
-          arguments: "/V4 /DVERSION=${{steps.vars.outputs.release_version}} /DOUTPUT=dist/${app_exe}-win64-setup-${{steps.vars.outputs.release_id}}.exe"
+          arguments: "/V4 /DVERSION=${{steps.vars.outputs.release_version}} /DOUTPUT=dist/${{env.app_name}}-win64-setup-${{steps.vars.outputs.release_id}}.exe"
 
       - name: Create Linux installer
         if: runner.os == 'Linux'
@@ -89,7 +89,7 @@ jobs:
           sudo apt install makeself
 
           # Create Linux installer
-          OUTPUT_FILE=dist/${app_exe}-linux-setup-${{steps.vars.outputs.release_id}}.run
+          OUTPUT_FILE=dist/${{env.app_name}}-linux-setup-${{steps.vars.outputs.release_id}}.run
           installer-linux/create_linux_installer.sh ${OUTPUT_FILE}
 
       - name: Windows post build
@@ -97,26 +97,26 @@ jobs:
         shell: bash
         run: |
           # Rename portable executable
-          mv dist/${app_exe}.exe dist/${app_exe}-win64-portable-${{steps.vars.outputs.release_id}}.exe
+          mv dist/${{env.app_name}}.exe dist/${{env.app_name}}-win64-portable-${{steps.vars.outputs.release_id}}.exe
 
       - name: Create Windows executable hashes
         if: runner.os == 'Windows'
         shell: bash
         run: |
-          sha1sum dist/${app_exe}-win64-portable-${{steps.vars.outputs.release_id}}.exe > dist/${app_exe}-win64-portable-${{steps.vars.outputs.release_id}}.exe.sha1
-          sha1sum dist/${app_exe}-win64-setup-${{steps.vars.outputs.release_id}}.exe > dist/${app_exe}-win64-setup-${{steps.vars.outputs.release_id}}.exe.sha1
-          cat dist/${app_exe}-win64-portable-${{steps.vars.outputs.release_id}}.exe.sha1
-          cat dist/${app_exe}-win64-setup-${{steps.vars.outputs.release_id}}.exe.sha1
+          sha1sum dist/${{env.app_name}}-win64-portable-${{steps.vars.outputs.release_id}}.exe > dist/${{env.app_name}}-win64-portable-${{steps.vars.outputs.release_id}}.exe.sha1
+          sha1sum dist/${{env.app_name}}-win64-setup-${{steps.vars.outputs.release_id}}.exe > dist/${{env.app_name}}-win64-setup-${{steps.vars.outputs.release_id}}.exe.sha1
+          cat dist/${{env.app_name}}-win64-portable-${{steps.vars.outputs.release_id}}.exe.sha1
+          cat dist/${{env.app_name}}-win64-setup-${{steps.vars.outputs.release_id}}.exe.sha1
 
       - name: Create Linux executable hashes
         if: runner.os == 'Linux'
         run: |
-          mv dist/${app_exe} dist/${app_exe}-linux-portable-${{steps.vars.outputs.release_id}}
+          mv dist/${{env.app_name}} dist/${{env.app_name}}-linux-portable-${{steps.vars.outputs.release_id}}
 
-          sha1sum dist/${app_exe}-linux-portable-${{steps.vars.outputs.release_id}} > dist/${app_exe}-linux-portable-${{steps.vars.outputs.release_id}}.sha1
-          sha1sum dist/${app_exe}-linux-setup-${{steps.vars.outputs.release_id}}.run > dist/${app_exe}-linux-setup-${{steps.vars.outputs.release_id}}.run.sha1
-          cat dist/${app_exe}-linux-portable-${{steps.vars.outputs.release_id}}.sha1
-          cat dist/${app_exe}-linux-setup-${{steps.vars.outputs.release_id}}.run.sha1
+          sha1sum dist/${{env.app_name}}-linux-portable-${{steps.vars.outputs.release_id}} > dist/${{env.app_name}}-linux-portable-${{steps.vars.outputs.release_id}}.sha1
+          sha1sum dist/${{env.app_name}}-linux-setup-${{steps.vars.outputs.release_id}}.run > dist/${{env.app_name}}-linux-setup-${{steps.vars.outputs.release_id}}.run.sha1
+          cat dist/${{env.app_name}}-linux-portable-${{steps.vars.outputs.release_id}}.sha1
+          cat dist/${{env.app_name}}-linux-setup-${{steps.vars.outputs.release_id}}.run.sha1
 
       - name: Prepare artifacts
         shell: bash
@@ -133,29 +133,29 @@ jobs:
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
-          name: ${app_exe}-windows-${{steps.vars.outputs.release_id}}
+          name: ${{env.app_name}}-windows-${{steps.vars.outputs.release_id}}
           if-no-files-found: error
           path: |
             dist/LICENSE
             dist/website.url
-            dist/${app_exe}-win64-portable-${{steps.vars.outputs.release_id}}.exe
-            dist/${app_exe}-win64-portable-${{steps.vars.outputs.release_id}}.exe.sha1
-            dist/${app_exe}-win64-setup-${{steps.vars.outputs.release_id}}.exe
-            dist/${app_exe}-win64-setup-${{steps.vars.outputs.release_id}}.exe.sha1
+            dist/${{env.app_name}}-win64-portable-${{steps.vars.outputs.release_id}}.exe
+            dist/${{env.app_name}}-win64-portable-${{steps.vars.outputs.release_id}}.exe.sha1
+            dist/${{env.app_name}}-win64-setup-${{steps.vars.outputs.release_id}}.exe
+            dist/${{env.app_name}}-win64-setup-${{steps.vars.outputs.release_id}}.exe.sha1
 
       - name: Upload Linux Artifacts
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
-          name: ${app_exe}-linux-${{steps.vars.outputs.release_id}}
+          name: ${{env.app_name}}-linux-${{steps.vars.outputs.release_id}}
           if-no-files-found: error
           path: |
             dist/LICENSE
             dist/website.url
-            dist/${app_exe}-linux-portable-${{steps.vars.outputs.release_id}}
-            dist/${app_exe}-linux-portable-${{steps.vars.outputs.release_id}}.sha1
-            dist/${app_exe}-linux-setup-${{steps.vars.outputs.release_id}}.run
-            dist/${app_exe}-linux-setup-${{steps.vars.outputs.release_id}}.run.sha1
+            dist/${{env.app_name}}-linux-portable-${{steps.vars.outputs.release_id}}
+            dist/${{env.app_name}}-linux-portable-${{steps.vars.outputs.release_id}}.sha1
+            dist/${{env.app_name}}-linux-setup-${{steps.vars.outputs.release_id}}.run
+            dist/${{env.app_name}}-linux-setup-${{steps.vars.outputs.release_id}}.run.sha1
 
   release:
     name: "Create Github release"
@@ -184,14 +184,14 @@ jobs:
         with:
           files: |
             LICENSE
-            ${{ github.workspace }}/artifacts/${app_exe}-linux-${{github.ref_name}}/${app_exe}-linux-portable-${{github.ref_name}}
-            ${{ github.workspace }}/artifacts/${app_exe}-linux-${{github.ref_name}}/${app_exe}-linux-portable-${{github.ref_name}}.sha1
-            ${{ github.workspace }}/artifacts/${app_exe}-linux-${{github.ref_name}}/${app_exe}-linux-setup-${{github.ref_name}}.run
-            ${{ github.workspace }}/artifacts/${app_exe}-linux-${{github.ref_name}}/${app_exe}-linux-setup-${{github.ref_name}}.run.sha1
-            ${{ github.workspace }}/artifacts/${app_exe}-windows-${{github.ref_name}}/${app_exe}-win64-portable-${{github.ref_name}}.exe
-            ${{ github.workspace }}/artifacts/${app_exe}-windows-${{github.ref_name}}/${app_exe}-win64-portable-${{github.ref_name}}.exe.sha1
-            ${{ github.workspace }}/artifacts/${app_exe}-windows-${{github.ref_name}}/${app_exe}-win64-setup-${{github.ref_name}}.exe
-            ${{ github.workspace }}/artifacts/${app_exe}-windows-${{github.ref_name}}/${app_exe}-win64-setup-${{github.ref_name}}.exe.sha1
+            ${{ github.workspace }}/artifacts/${{env.app_name}}-linux-${{github.ref_name}}/${{env.app_name}}-linux-portable-${{github.ref_name}}
+            ${{ github.workspace }}/artifacts/${{env.app_name}}-linux-${{github.ref_name}}/${{env.app_name}}-linux-portable-${{github.ref_name}}.sha1
+            ${{ github.workspace }}/artifacts/${{env.app_name}}-linux-${{github.ref_name}}/${{env.app_name}}-linux-setup-${{github.ref_name}}.run
+            ${{ github.workspace }}/artifacts/${{env.app_name}}-linux-${{github.ref_name}}/${{env.app_name}}-linux-setup-${{github.ref_name}}.run.sha1
+            ${{ github.workspace }}/artifacts/${{env.app_name}}-windows-${{github.ref_name}}/${{env.app_name}}-win64-portable-${{github.ref_name}}.exe
+            ${{ github.workspace }}/artifacts/${{env.app_name}}-windows-${{github.ref_name}}/${{env.app_name}}-win64-portable-${{github.ref_name}}.exe.sha1
+            ${{ github.workspace }}/artifacts/${{env.app_name}}-windows-${{github.ref_name}}/${{env.app_name}}-win64-setup-${{github.ref_name}}.exe
+            ${{ github.workspace }}/artifacts/${{env.app_name}}-windows-${{github.ref_name}}/${{env.app_name}}-win64-setup-${{github.ref_name}}.exe.sha1
 
       - name: Set GitHub release description
         uses: Roang-zero1/github-create-release-action@v3
