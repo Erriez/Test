@@ -14,7 +14,7 @@
   !define VERSION "0.0.0"
 !endif
 !ifndef OUTPUT
-  !define OUTPUT "erriez-test-setup.exe"
+  !define OUTPUT "setup.exe"
 !endif
 !define COPYRIGHT "Erriez © 2024"
 !define DESCRIPTION "Test Application"

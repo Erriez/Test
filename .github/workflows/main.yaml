@@ -18,7 +18,7 @@ on:
   workflow_dispatch:
 
 env:
-  app_name: 'erriez-test'
+  app_exe: 'erriez-test'
 
 jobs:
   build:
@@ -71,7 +71,7 @@ jobs:
       - name: Build single executable
         run: |
           pip install pyinstaller
-          pyinstaller --onefile --noconsole -i images\test.ico --name ${app_name} test.py
+          pyinstaller --onefile --noconsole -i images\test.ico --name ${app_exe} test.py
 
       - name: Create Windows NSIS installer
         if: runner.os == 'Windows'
@@ -79,7 +79,7 @@ jobs:
         with:
           script-file: "nsis/install.nsi"
           # VERSION must be in x.x.x format
-          arguments: "/V4 /DVERSION=${{steps.vars.outputs.release_version}} /DOUTPUT=dist/erriez-test-win64-setup-${{steps.vars.outputs.release_id}}.exe"
+          arguments: "/V4 /DVERSION=${{steps.vars.outputs.release_version}} /DOUTPUT=dist/${app_exe}-win64-setup-${{steps.vars.outputs.release_id}}.exe"
 
       - name: Create Linux installer
         if: runner.os == 'Linux'
@@ -88,7 +88,7 @@ jobs:
           sudo apt install makeself
 
           # Create Linux installer
-          OUTPUT_FILE=dist/erriez-test-linux-setup-${{steps.vars.outputs.release_id}}.run
+          OUTPUT_FILE=dist/${app_exe}-linux-setup-${{steps.vars.outputs.release_id}}.run
           installer-linux/create_linux_installer.sh ${OUTPUT_FILE}
 
       - name: Windows post build
@@ -96,26 +96,26 @@ jobs:
         shell: bash
         run: |
           # Rename portable executable
-          mv dist/erriez-test.exe dist/erriez-test-win64-portable-${{steps.vars.outputs.release_id}}.exe
+          mv dist/${app_exe}.exe dist/${app_exe}-win64-portable-${{steps.vars.outputs.release_id}}.exe
 
       - name: Create Windows executable hashes
         if: runner.os == 'Windows'
         shell: bash
         run: |
-          sha1sum dist/erriez-test-win64-portable-${{steps.vars.outputs.release_id}}.exe > dist/erriez-test-win64-portable-${{steps.vars.outputs.release_id}}.exe.sha1
-          sha1sum dist/erriez-test-win64-setup-${{steps.vars.outputs.release_id}}.exe > dist/erriez-test-win64-setup-${{steps.vars.outputs.release_id}}.exe.sha1
-          cat dist/erriez-test-win64-portable-${{steps.vars.outputs.release_id}}.exe.sha1
-          cat dist/erriez-test-win64-setup-${{steps.vars.outputs.release_id}}.exe.sha1
+          sha1sum dist/${app_exe}-win64-portable-${{steps.vars.outputs.release_id}}.exe > dist/${app_exe}-win64-portable-${{steps.vars.outputs.release_id}}.exe.sha1
+          sha1sum dist/${app_exe}-win64-setup-${{steps.vars.outputs.release_id}}.exe > dist/${app_exe}-win64-setup-${{steps.vars.outputs.release_id}}.exe.sha1
+          cat dist/${app_exe}-win64-portable-${{steps.vars.outputs.release_id}}.exe.sha1
+          cat dist/${app_exe}-win64-setup-${{steps.vars.outputs.release_id}}.exe.sha1
 
       - name: Create Linux executable hashes
         if: runner.os == 'Linux'
         run: |
-          mv dist/erriez-test dist/erriez-test-linux-portable-${{steps.vars.outputs.release_id}}
+          mv dist/${app_exe} dist/${app_exe}-linux-portable-${{steps.vars.outputs.release_id}}
 
-          sha1sum dist/erriez-test-linux-portable-${{steps.vars.outputs.release_id}} > dist/erriez-test-linux-portable-${{steps.vars.outputs.release_id}}.sha1
-          sha1sum dist/erriez-test-linux-setup-${{steps.vars.outputs.release_id}}.run > dist/erriez-test-linux-setup-${{steps.vars.outputs.release_id}}.run.sha1
-          cat dist/erriez-test-linux-portable-${{steps.vars.outputs.release_id}}.sha1
-          cat dist/erriez-test-linux-setup-${{steps.vars.outputs.release_id}}.run.sha1
+          sha1sum dist/${app_exe}-linux-portable-${{steps.vars.outputs.release_id}} > dist/${app_exe}-linux-portable-${{steps.vars.outputs.release_id}}.sha1
+          sha1sum dist/${app_exe}-linux-setup-${{steps.vars.outputs.release_id}}.run > dist/${app_exe}-linux-setup-${{steps.vars.outputs.release_id}}.run.sha1
+          cat dist/${app_exe}-linux-portable-${{steps.vars.outputs.release_id}}.sha1
+          cat dist/${app_exe}-linux-setup-${{steps.vars.outputs.release_id}}.run.sha1
 
       - name: Prepare artifacts
         shell: bash
@@ -132,29 +132,29 @@ jobs:
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
-          name: erriez-test-windows-${{steps.vars.outputs.release_id}}
+          name: ${app_exe}-windows-${{steps.vars.outputs.release_id}}
           if-no-files-found: error
           path: |
             dist/LICENSE
             dist/website.url
-            dist/erriez-test-win64-portable-${{steps.vars.outputs.release_id}}.exe
-            dist/erriez-test-win64-portable-${{steps.vars.outputs.release_id}}.exe.sha1
-            dist/erriez-test-win64-setup-${{steps.vars.outputs.release_id}}.exe
-            dist/erriez-test-win64-setup-${{steps.vars.outputs.release_id}}.exe.sha1
+            dist/${app_exe}-win64-portable-${{steps.vars.outputs.release_id}}.exe
+            dist/${app_exe}-win64-portable-${{steps.vars.outputs.release_id}}.exe.sha1
+            dist/${app_exe}-win64-setup-${{steps.vars.outputs.release_id}}.exe
+            dist/${app_exe}-win64-setup-${{steps.vars.outputs.release_id}}.exe.sha1
 
       - name: Upload Linux Artifacts
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
-          name: erriez-test-linux-${{steps.vars.outputs.release_id}}
+          name: ${app_exe}-linux-${{steps.vars.outputs.release_id}}
           if-no-files-found: error
           path: |
             dist/LICENSE
             dist/website.url
-            dist/erriez-test-linux-portable-${{steps.vars.outputs.release_id}}
-            dist/erriez-test-linux-portable-${{steps.vars.outputs.release_id}}.sha1
-            dist/erriez-test-linux-setup-${{steps.vars.outputs.release_id}}.run
-            dist/erriez-test-linux-setup-${{steps.vars.outputs.release_id}}.run.sha1
+            dist/${app_exe}-linux-portable-${{steps.vars.outputs.release_id}}
+            dist/${app_exe}-linux-portable-${{steps.vars.outputs.release_id}}.sha1
+            dist/${app_exe}-linux-setup-${{steps.vars.outputs.release_id}}.run
+            dist/${app_exe}-linux-setup-${{steps.vars.outputs.release_id}}.run.sha1
 
   release:
     name: "Create Github release"
@@ -183,14 +183,14 @@ jobs:
         with:
           files: |
             LICENSE
-            ${{ github.workspace }}/artifacts/erriez-test-linux-${{github.ref_name}}/erriez-test-linux-portable-${{github.ref_name}}
-            ${{ github.workspace }}/artifacts/erriez-test-linux-${{github.ref_name}}/erriez-test-linux-portable-${{github.ref_name}}.sha1
-            ${{ github.workspace }}/artifacts/erriez-test-linux-${{github.ref_name}}/erriez-test-linux-setup-${{github.ref_name}}.run
-            ${{ github.workspace }}/artifacts/erriez-test-linux-${{github.ref_name}}/erriez-test-linux-setup-${{github.ref_name}}.run.sha1
-            ${{ github.workspace }}/artifacts/erriez-test-windows-${{github.ref_name}}/erriez-test-win64-portable-${{github.ref_name}}.exe
-            ${{ github.workspace }}/artifacts/erriez-test-windows-${{github.ref_name}}/erriez-test-win64-portable-${{github.ref_name}}.exe.sha1
-            ${{ github.workspace }}/artifacts/erriez-test-windows-${{github.ref_name}}/erriez-test-win64-setup-${{github.ref_name}}.exe
-            ${{ github.workspace }}/artifacts/erriez-test-windows-${{github.ref_name}}/erriez-test-win64-setup-${{github.ref_name}}.exe.sha1
+            ${{ github.workspace }}/artifacts/${app_exe}-linux-${{github.ref_name}}/${app_exe}-linux-portable-${{github.ref_name}}
+            ${{ github.workspace }}/artifacts/${app_exe}-linux-${{github.ref_name}}/${app_exe}-linux-portable-${{github.ref_name}}.sha1
+            ${{ github.workspace }}/artifacts/${app_exe}-linux-${{github.ref_name}}/${app_exe}-linux-setup-${{github.ref_name}}.run
+            ${{ github.workspace }}/artifacts/${app_exe}-linux-${{github.ref_name}}/${app_exe}-linux-setup-${{github.ref_name}}.run.sha1
+            ${{ github.workspace }}/artifacts/${app_exe}-windows-${{github.ref_name}}/${app_exe}-win64-portable-${{github.ref_name}}.exe
+            ${{ github.workspace }}/artifacts/${app_exe}-windows-${{github.ref_name}}/${app_exe}-win64-portable-${{github.ref_name}}.exe.sha1
+            ${{ github.workspace }}/artifacts/${app_exe}-windows-${{github.ref_name}}/${app_exe}-win64-setup-${{github.ref_name}}.exe
+            ${{ github.workspace }}/artifacts/${app_exe}-windows-${{github.ref_name}}/${app_exe}-win64-setup-${{github.ref_name}}.exe.sha1
 
       - name: Set GitHub release description
         uses: Roang-zero1/github-create-release-action@v3
