@@ -72,7 +72,7 @@ jobs:
         shell: bash
         run: |
           pip install pyinstaller
-          pyinstaller --onefile --noconsole -i images\test.ico --name ${app_exe} test.py
+          pyinstaller --onefile --noconsole -i images/test.ico --name ${app_exe} test.py
 
       - name: Create Windows NSIS installer
         if: runner.os == 'Windows'
